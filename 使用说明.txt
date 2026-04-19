@@ -1,0 +1,73 @@
+PMHQ 对接包（新版）
+==================
+
+内容说明
+--------
+- pmhq_integration/   Python 包：发私聊、音乐卡、好友列表、本机登录/在线状态解析、启动 PMHQ 辅助函数
+- requirements.txt    依赖：websocket-client
+- docs/               从仓库 doc/ 复制的说明（api.md / plugin.md / config.md），无独立 JS 运行时
+- plugin_sample/test/ 官方示例 PMHQ 插件（main.js / preload.js / renderer.js / manifest.json）
+
+未包含（需自行从完整仓库获取）
+--------------------------------
+- LuckyLilliaBot 的 TypeScript 源码（体量很大；Python 对接一般不需要）
+- pmhq-win-x64 下的 exe/dll（请单独拷贝或设 PMHQ_EXE）
+- scripts/ 命令行脚本（与 pmhq_integration 功能重叠，未重复打包）
+
+安装依赖
+--------
+  pip install -r requirements.txt
+
+导入方式
+--------
+将「本文件夹的上一级目录」加入 PYTHONPATH（即 PMHQ-main 根目录），或把你的项目根加入 PYTHONPATH：
+
+  import pmhq_integration
+  from pmhq_integration import PMHQWsClient, send_private_text, ...
+
+若只复制了「新版」文件夹到其它电脑，请把整个「新版」放在你的工程里，并把「包含 pmhq_integration 上级文件夹」的路径加入 sys.path。
+
+示例脚本
+--------
+  python pmhq_integration/example_external.py
+
+（需在 PMHQ-main 根目录执行，或自行设置 PYTHONPATH。）
+
+命令行启动 PMHQ（直接跑 launch.py，勿用 python -m）
+------------------------------------------------
+  cd 本目录
+  python pmhq_integration/launch.py
+  python pmhq_integration/launch.py --check-only
+  python pmhq_integration/launch.py --no-launch
+  python pmhq_integration/launch.py --monitor
+
+PMHQ 可执行文件
+--------------
+launch 按顺序查找 pmhq-win-x64.exe：
+  1) 环境变量 PMHQ_EXE
+  2) 本包同级：新版/pmhq-win-x64/pmhq-win-x64.exe
+  3) 再上一级：PMHQ-main/pmhq-win-x64/pmhq-win-x64.exe（「新版」放在仓库里时常用）
+若仍没有，请复制 exe 到上述目录之一，或使用: python pmhq_integration/launch.py --exe 完整路径
+
+与仓库 scripts 的关系
+--------------------
+仓库 scripts/ 下仍有独立命令行脚本；本包为自包含副本，便于拷贝到其它项目。
+
+
+
+
+
+client.py	核心客户端类 / 连接管理，负责与 PMHQ 服务端建立连接、维护会话、封装基础请求逻辑
+buddies.py	好友（伙伴）相关操作：获取好友列表、添加 / 删除好友、查询好友信息等
+example_external.py	外部集成示例代码，演示如何调用本项目的接口实现第三方集成（供开发者参考）
+music_card.py	音乐卡片相关功能：发送 / 展示音乐卡片消息、解析音乐卡片内容等
+group_contact_card.py	群聊联系人卡片：生成 / 发送群成员卡片、解析群卡片信息等
+launch.py	项目启动入口：初始化客户端、加载配置、启动核心服务等
+profile_edit.py	个人资料编辑：修改昵称、签名、个人信息等
+private_text.py	私聊文本消息：发送 / 接收私聊文本、处理私聊消息回调等
+self_avatar.py	个人头像基础操作：获取当前头像、预览头像等
+pmhq_set_avatar.py	PMHQ 专属头像设置：上传 / 更换头像、裁剪头像、同步头像到服务端等
+self_status.py	个人状态管理：设置在线 / 离线 / 忙碌等状态、获取当前状态等
+requirements.txt	项目依赖清单：记录运行所需的 Python 包（如 requests、websocket-client 等）
+pmhq/	核心模块目录：存放更细分的 PMHQ 平台底层封装（如 API 路由、数据模型等）
+__pycache__/	Python 编译后的字节码缓存目录（自动生成，无需手动维护）
